@@ -188,7 +188,7 @@ block * create_block(block * parent, char * data) {
     n->parent = parent;
     if(parent != NULL) n->index = parent->index + 1;
     else n->index = 0;
-    n->data = malloc(strlen(data));
+    n->data = malloc(strlen(data) + 1);
     strcpy(n->data, data);
     n->timestamp = time(NULL);
     n->nonce[0] = 0;
