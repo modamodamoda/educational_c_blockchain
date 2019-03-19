@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <time.h>
 
-#define SECONDS_INCREASE 1
-#define SECONDS_DECREASE 2
-#define INITIAL_DIFFICULTY 8
+#define SECONDS_INCREASE 1 * 10
+#define SECONDS_DECREASE 2 * 10
+#define INITIAL_DIFFICULTY 16
 #define DIFFICULTY_ADJUSTMENT_PERIODS 50
 
 typedef struct block {
@@ -79,15 +79,15 @@ void rand_bytes(char *bin, size_t size)
     if (size) {
         size_t n;
         --size;
-        for (n = 0; n < size; n++) {
+        for (n = 0; n < size ; n++) {
             bin[n] = rand();
         }
         bin[size] = '\0';
     }
 } 
 
-// block_sa generates an average between the difference of the timestamps over n periods
-int block_sa(block * b, int n) {
+// block_sa generates an average between the difference of the timestamps over n periods. multiplies result by accuracy to save on floating point operations
+int block_sa(block * b, int n, int accuracy) {
     block * cur = b;
     int diff = 0;
     for(int i = 0; i < n; i++) {
@@ -95,7 +95,7 @@ int block_sa(block * b, int n) {
         diff += (cur->timestamp - cur->parent->timestamp);
         cur = cur->parent;
     }
-    return diff / n;
+    return (diff * accuracy) / n;
 }
 
 // blockchain_push places the element into the block pointer (linked list-like structure, might be beneficial to also implement a dynamic array)
@@ -108,7 +108,7 @@ int blockchain_push(blockchain* b, block* element) {
     }
     else {
         // Check if we need to adjust the difficulty
-        int td = block_sa(element, 50);
+        int td = block_sa(element, DIFFICULTY_ADJUSTMENT_PERIODS, 10);
         if(td == -1) {
             // Not enough info yet, keep difficulty the same
             element->difficulty = element->parent->difficulty;
@@ -208,7 +208,7 @@ int main (void) {
     for(int i = 0; i < 200; i++) {
         block * NextBlock = create_block(MyTest->block, "Another Test Block");
         while(block_verify(MyTest, NextBlock) != 0) {
-            rand_bytes(NextBlock->nonce, 32);
+            rand_bytes(NextBlock->nonce, 33);
             block_sign(NextBlock);
         }
         if(blockchain_push(MyTest, NextBlock) != 0) {
