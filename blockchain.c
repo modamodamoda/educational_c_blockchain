@@ -142,7 +142,6 @@ void block_gen_sha256(char * data, char parent_signature[SHA256_DIGEST_LENGTH], 
 
 // block_sign signs a block
 int block_sign(block* b) {
-    char * toSign;
     block_gen_sha256(b->data, b->parent->signature, b->nonce, b->signature);
     return 0;
 }
