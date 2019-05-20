@@ -135,7 +135,6 @@ void block_gen_sha256(char * data, char parent_signature[SHA256_DIGEST_LENGTH], 
     strcpy(toSign, data);
     strcat(toSign, parent_signature);
     strcat(toSign, nonce);
-    toSign[len - 1] = '\0';
     SHA256(toSign, len, buff);
     free(toSign); // Original string no longer needed.
 }
